@@ -1,0 +1,391 @@
+[
+    {
+        "id": "e96c16de8aabce4d",
+        "type": "tab",
+        "label": "TelegramBot",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "809f1653bf92095f",
+        "type": "chatbot-telegram-receive",
+        "z": "e96c16de8aabce4d",
+        "bot": "746d4a75216fbd0d",
+        "botProduction": "",
+        "x": 190,
+        "y": 400,
+        "wires": [
+            [
+                "610a58d1ff59a69d"
+            ]
+        ]
+    },
+    {
+        "id": "8bf74cd3d340f83e",
+        "type": "chatbot-telegram-send",
+        "z": "e96c16de8aabce4d",
+        "bot": "746d4a75216fbd0d",
+        "botProduction": "",
+        "track": false,
+        "passThrough": false,
+        "errorOutput": false,
+        "outputs": 0,
+        "x": 1050,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "f1be38537e82f012",
+        "type": "mqtt in",
+        "z": "e96c16de8aabce4d",
+        "name": "Milan weather",
+        "topic": "/smartcity/milan",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "42b11568be4caf33",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 390,
+        "y": 140,
+        "wires": [
+            [
+                "ca096e0bbd76d3de"
+            ]
+        ]
+    },
+    {
+        "id": "d964f848887d23eb",
+        "type": "mqtt in",
+        "z": "e96c16de8aabce4d",
+        "name": "Hamburg weather",
+        "topic": "/smartcity/hamburg",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "42b11568be4caf33",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 410,
+        "y": 200,
+        "wires": [
+            [
+                "80847daafcfab552"
+            ]
+        ]
+    },
+    {
+        "id": "7df9819ee01cf4c6",
+        "type": "function",
+        "z": "e96c16de8aabce4d",
+        "name": "Milan saver",
+        "func": "let miqueue = flow.get(\"milanWeather\");\nlet humindityQueue = flow.get(\"milanHumidity\");\n\nif (miqueue.length >= 10) {\n    miqueue.shift();\n}\nif (msg.payload.temperature != null)\n    miqueue.push(msg.payload.temperature);\n\nif (humindityQueue.length >= 10) {\n    humindityQueue.shift();\n}\nif(msg.payload.humidity != null)\n    humindityQueue.push(msg.payload.humidity);\n\nflow.set(\"milanWeather\", miqueue)\nflow.set(\"milanHumidity\", humindityQueue)\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "// Code added here will be run once\n// whenever the node is started.\nflow.set(\"milanWeather\", []);\nflow.set(\"milanHumidity\", []);",
+        "finalize": "",
+        "libs": [],
+        "x": 830,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ca096e0bbd76d3de",
+        "type": "function",
+        "z": "e96c16de8aabce4d",
+        "name": "Milan simplifier",
+        "func": "let newMsg = {\n    payload : {\n        temperature : null,\n        humidity : null\n    }\n};\n\n\nfor (let i = 0; i < msg.payload.sensordatavalues.length; i++){\n    if (msg.payload.sensordatavalues[i].value_type == \"temperature\"){\n        \n        newMsg.payload.temperature = Number(msg.payload.sensordatavalues[i].value)\n    }\n    if (msg.payload.sensordatavalues[i].value_type == \"humidity\"){\n        newMsg.payload.humidity = Number(msg.payload.sensordatavalues[i].value)\n    }\n}\nif (newMsg.payload.temperature != null || newMsg.payload.humidity != null)\n    return newMsg;\n\nelse\n    return null;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 620,
+        "y": 140,
+        "wires": [
+            [
+                "7df9819ee01cf4c6"
+            ]
+        ]
+    },
+    {
+        "id": "80847daafcfab552",
+        "type": "function",
+        "z": "e96c16de8aabce4d",
+        "name": "Hamburg simplifier",
+        "func": "let newMsg = {\n    payload: {\n        temperature: null,\n        humidity: null\n    }\n};\n\nfor (let i = 0; i < msg.payload.sensordatavalues.length; i++) {\n    if (msg.payload.sensordatavalues[i].value_type == \"temperature\") {\n\n        newMsg.payload.temperature = Number(msg.payload.sensordatavalues[i].value)\n    }\n    if (msg.payload.sensordatavalues[i].value_type == \"humidity\") {\n        newMsg.payload.humidity = Number(msg.payload.sensordatavalues[i].value)\n    }\n}\nif (newMsg.payload.temperature != null || newMsg.payload.humidity != null)\n    return newMsg;\n\nelse\n    return null;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 200,
+        "wires": [
+            [
+                "4cc24e90d71ba438"
+            ]
+        ]
+    },
+    {
+        "id": "4cc24e90d71ba438",
+        "type": "function",
+        "z": "e96c16de8aabce4d",
+        "name": "Hamburg saver",
+        "func": "let hamqueue = flow.get(\"hamburgWeather\");\nlet humindityQueue = flow.get(\"hamburgHumidity\");\n\nif (hamqueue.length >= 10) {\n    hamqueue.shift();\n}\nif (msg.payload.temperature != null)\n    hamqueue.push(msg.payload.temperature);\n\nif (humindityQueue.length >= 10) {\n    humindityQueue.shift();\n}\nif (msg.payload.humidity != null)\n    humindityQueue.push(msg.payload.humidity);\n\nflow.set(\"hamburgWeather\", hamqueue)\nflow.set(\"hamburgHumidity\", humindityQueue)\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "// Code added here will be run once\n// whenever the node is started.\nflow.set(\"hamburgWeather\", []);\nflow.set(\"hamburgHumidity\", []);\n",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "610a58d1ff59a69d",
+        "type": "function",
+        "z": "e96c16de8aabce4d",
+        "name": "Message handler",
+        "func": "let newMsg;\n\n//delete msg.ts;\n//delete msg.transport;\nmsg.payload.inboud = false;\nmsg.payload.fallback = null;\n\nif (msg.payload.content == \"What is the average temperature in Milano?\") {\n\n    if (flow.get(\"milanWeather\").length > 0){\n        let sum = 0;\n        \n        console.log(flow.get(\"milanWeather\"));\n\n        for (let i = 0; i < flow.get(\"milanWeather\").length; i++) {\n            sum += flow.get(\"milanWeather\")[i];\n        }\n\n        msg.payload.city = \"Milan\";\n        \n        \n        msg.payload.temperature= sum / flow.get(\"milanWeather\").length;\n        return [msg, null, null, null, null, null, null, null];\n    }\n    else {\n        msg.payload.city= \"Milan\";\n        return [null, msg, null, null, null, null, null, null];\n    }\n\n}\nelse if (msg.payload.content == \"What is the average temperature in Hamburg?\") {\n    if (flow.get(\"hamburgWeather\").length > 0) {\n        let sum = 0;\n\n        for (let i = 0; i < flow.get(\"hamburgWeather\").length; i++) {\n            sum += flow.get(\"hamburgWeather\")[i];\n        }\n\n        msg.payload.city = \"Hamburg\";\n        msg.payload.temperature = sum / flow.get(\"hamburgWeather\").length;\n    \n        return [msg, null, null, null, null, null, null, null];\n    }\n    else {\n        msg.payload.city = \"Hamburg\";\n        return [null, msg, null, null, null, null, null, null];\n    }\n}\n\nelse if (msg.payload.content == \"What are the maximum and minimum humidity values in Milano?\"){\n    \n    let queue = flow.get(\"milanHumidity\");\n\n    if(queue.length > 0) {\n        let min = 100;\n        let max = 0;\n\n        for(let i = 0; i<queue.length; i++) {\n            if(queue[i] < min)\n                min = queue[i];\n            if (queue[i] > max)\n                max = queue[i];\n        }\n\n        msg.payload.city = \"Milan\";\n        msg.payload.humidityMax = max;\n        msg.payload.humidityMin = min;\n\n        return [null, null, msg, null, null, null, null, null];\n    }\n\n    else {\n        msg.payload.city = \"Milan\";\n\n        return [null, null, null, msg, null, null, null, null]\n    }\n\n    \n}\n\nelse if (msg.payload.content == \"What are the maximum and minimum humidity values in Hamburg?\") {\n    let queue = flow.get(\"hamburgHumidity\");\n\n    let min = 100;\n    let max = 0;\n\n    if (queue.length > 0) {\n\n        for (let i = 0; i < queue.length; i++) {\n            if (queue[i] < min)\n                min = queue[i];\n            if (queue[i] > max)\n                max = queue[i];\n        }\n\n        msg.payload.city = \"Hamburg\";\n        msg.payload.humidityMax = max;\n        msg.payload.humidityMin = min;\n\n        return [null, null, msg, null, null, null, null, null];\n    }\n\n    else {\n        msg.payload.city = \"Hamburg\";\n\n        return [null, null, null, msg, null, null, null, null]\n    }\n}\n\nelse if (msg.payload.content.includes(\"Hi, my name is\")){\n    let words = msg.payload.content.split(\" \");\n    let name = words[words.length-1]\n\n    let users = flow.get(\"users\");\n\n    if (! users.includes(name)){\n        users.push(name)\n        flow.set(\"users\", users);\n    }\n}\n\nelse if ((msg.payload.content == \"Who did you talk to?\")) {\n    let users = flow.get(\"users\");\n    \n    let str = \"\";\n\n    if(users.length == 0){\n        \n        str += \"In my whole life I talked to no one :(\";\n        \n    }else if (users.length == 1){\n        str += \"In my whole life I talked to \" +users[0];\n        \n    }else{\n        \n        str += \"In my whole life I talked to \";\n\n        for (let i=0; i<users.length -1; i++) {\n            str += users[i];\n        }\n\n        str += \" and \" + users[users.length -1] + \" until now\";\n    }\n\n    msg.payload.users = str;\n\n    return [null, null, null, null, msg, null, null, null];\n}\n\nelse if (msg.payload.content.includes(\"Have you ever talked to\")){\n\n    let words = msg.payload.content.split(\" \");\n    let name = words[words.length - 1].substring(0, words[words.length - 1].length - 1)\n\n    let users = flow.get(\"users\");\n\n    if (users.includes(name)) {\n        msg.payload.talked = \"Yes, I talked to \" + name + \" before\";\n    }\n    else {\n        msg.payload.talked = \"No, I have never talked to \" + name + \" before\";\n    }\n    return [null, null, null, null, null, msg, null, null];\n}else if(msg.payload.content.includes(\"/start\")){\n    console.log(\"HERE\");\n    return [null, null, null, null, null, null, null, msg]\n}else{\n    return [null, null, null, null, null, null, msg, null];\n}\n\n\n",
+        "outputs": 8,
+        "noerr": 0,
+        "initialize": "// Code added here will be run once\n// whenever the node is started.\nflow.set(\"users\", [])",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 400,
+        "wires": [
+            [
+                "11789f9ce9a75794"
+            ],
+            [
+                "07f982894849348e"
+            ],
+            [
+                "403040ab37d37c18"
+            ],
+            [
+                "30c7b1cbcd88168e"
+            ],
+            [
+                "9ad33bb3e96056aa"
+            ],
+            [
+                "5b22933fc1f66a2b"
+            ],
+            [
+                "f8253df73a008931"
+            ],
+            [
+                "1d51c8595ee790a0"
+            ]
+        ]
+    },
+    {
+        "id": "11789f9ce9a75794",
+        "type": "chatbot-message",
+        "z": "e96c16de8aabce4d",
+        "name": "Temperature available",
+        "message": [
+            {
+                "message": "According to sensor.community, the average temperature in {{payload.city}} is {{payload.temperature}} C!"
+            }
+        ],
+        "language": "none",
+        "x": 700,
+        "y": 280,
+        "wires": [
+            [
+                "8bf74cd3d340f83e"
+            ]
+        ]
+    },
+    {
+        "id": "07f982894849348e",
+        "type": "chatbot-message",
+        "z": "e96c16de8aabce4d",
+        "name": "Temperature not available",
+        "message": [
+            {
+                "message": "No data available yet for {{payload.city}}. Try later..."
+            }
+        ],
+        "language": "none",
+        "x": 710,
+        "y": 340,
+        "wires": [
+            [
+                "8bf74cd3d340f83e"
+            ]
+        ]
+    },
+    {
+        "id": "403040ab37d37c18",
+        "type": "chatbot-message",
+        "z": "e96c16de8aabce4d",
+        "name": "Humidity available",
+        "message": [
+            {
+                "message": "Currently in {{payload.city}} the max humidity is {{payload.humidityMax}} and the min humidity is {{payload.humidityMin}}"
+            }
+        ],
+        "language": "none",
+        "x": 690,
+        "y": 400,
+        "wires": [
+            [
+                "8bf74cd3d340f83e"
+            ]
+        ]
+    },
+    {
+        "id": "30c7b1cbcd88168e",
+        "type": "chatbot-message",
+        "z": "e96c16de8aabce4d",
+        "name": "Humidity not available",
+        "message": [
+            {
+                "message": "There are no data available about humidities in {{payload.city}}"
+            }
+        ],
+        "language": "none",
+        "x": 700,
+        "y": 440,
+        "wires": [
+            [
+                "8bf74cd3d340f83e"
+            ]
+        ]
+    },
+    {
+        "id": "9ad33bb3e96056aa",
+        "type": "chatbot-message",
+        "z": "e96c16de8aabce4d",
+        "name": "All users",
+        "message": [
+            {
+                "message": "{{payload.users}}"
+            }
+        ],
+        "language": "none",
+        "x": 660,
+        "y": 500,
+        "wires": [
+            [
+                "8bf74cd3d340f83e"
+            ]
+        ]
+    },
+    {
+        "id": "5b22933fc1f66a2b",
+        "type": "chatbot-message",
+        "z": "e96c16de8aabce4d",
+        "name": "User talked to",
+        "message": [
+            {
+                "message": "{{payload.talked}}"
+            }
+        ],
+        "language": "none",
+        "x": 680,
+        "y": 540,
+        "wires": [
+            [
+                "8bf74cd3d340f83e"
+            ]
+        ]
+    },
+    {
+        "id": "f8253df73a008931",
+        "type": "chatbot-message",
+        "z": "e96c16de8aabce4d",
+        "name": "Non valid message",
+        "message": [
+            {
+                "message": "I cannot understand what you are saying!"
+            }
+        ],
+        "language": "none",
+        "x": 690,
+        "y": 600,
+        "wires": [
+            [
+                "8bf74cd3d340f83e"
+            ]
+        ]
+    },
+    {
+        "id": "1d51c8595ee790a0",
+        "type": "chatbot-message",
+        "z": "e96c16de8aabce4d",
+        "name": "Start",
+        "message": [
+            {
+                "message": "Welcome to Group21's bot! Choose an action:\n-Ask for temperature in Milan: What is the average temperature in Milano?\n-Ask for temperature in Hamburg: What is the average temperature in Hamburg?\n-Ask for humidity data: What are the maximum and minimum humidity values in Milano?\n-Register your username: Hi, my name is {username}\n-Ask list of people that talked to the bot: Who did you talk to?\n-Ask if the bot talked with a user in particular: Have you ever talked to {username}\n\n"
+            }
+        ],
+        "language": "none",
+        "x": 690,
+        "y": 660,
+        "wires": [
+            [
+                "8bf74cd3d340f83e"
+            ]
+        ]
+    },
+    {
+        "id": "746d4a75216fbd0d",
+        "type": "chatbot-telegram-node",
+        "botname": "NSDS_bot",
+        "usernames": "",
+        "polling": "1000",
+        "store": "",
+        "log": "",
+        "debug": true,
+        "skipMediaFiles": false,
+        "webHook": "",
+        "connectMode": "polling",
+        "storeMessages": true,
+        "enableMissionControl": false,
+        "inspectMessages": true,
+        "chatbotId": ""
+    },
+    {
+        "id": "42b11568be4caf33",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "mqtt.neslab.it",
+        "port": "3200",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "compatmode": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    }
+]
