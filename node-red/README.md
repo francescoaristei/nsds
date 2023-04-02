@@ -40,7 +40,7 @@ Example, from the user:
 - But you must format answers too!
 - You can assume the bot is installed on a Node-RED machine that is up 24/7
 
-## Description of message flows
+## Solution adopted (description of the message flow)
 
 For the first two queries we used 2 separates mqtt nodes: 1st one to subscribe to the topic "/smartcity/milan", 2nd to "/smartcity/hamburg".
 
