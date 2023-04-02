@@ -20,6 +20,7 @@ Consider a linear road divided into consecutive segments numbered 0..N as in the
 
 The simulation evolves in descrete rounds for a given number of iterations
 - num_iterations in the template file.
+
 At each round:
 - Some cars enter the road in segment 0.
 
