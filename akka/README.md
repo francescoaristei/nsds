@@ -13,28 +13,28 @@
 You are to create a simple event-based communication system using actors.
 
 The system shall be composed of (at least) five actors:
-– Two worker actors matching events against subscriptions.
-– A broker actor coordinating the operation of worker(s).
-– A subscriber actor that issues subscriptions and receives notifications.
-– A publisher actor that generates events.
+- Two worker actors matching events against subscriptions.
+- A broker actor coordinating the operation of worker(s).
+- A subscriber actor that issues subscriptions and receives notifications.
+- A publisher actor that generates events.
 
 The system shall use (at least) four types of
 messages:
-– SubscribeMsg to issue subscriptions.
-– PublishMsg to generate events.
-– NotificationMsg to notify subscribers of events.
-– BatchMsg to change the broker message policy.
+- SubscribeMsg to issue subscriptions.
+- PublishMsg to generate events.
+- NotificationMsg to notify subscribers of events.
+- BatchMsg to change the broker message policy.
 
 The broker splits the matching process between the two worker actors as follows:
-– Splitting is based on a partitioning of the key attribute in the Subscribe message.
+- Splitting is based on a partitioning of the key attribute in the Subscribe message.
 - Even keys go to one worker, odd keys go to the other.
-– When a worker actor receives a Publish message for a topic it is not aware of, it fails.
+- When a worker actor receives a Publish message for a topic it is not aware of, it fails.
 - Handling the failure must ensure that the set of active subscriptions before the failure is retained.
-– You can assume that at most one subscriber exist for a given topic.
+- You can assume that at most one subscriber exist for a given topic.
 
 Whenever the broker receives a BatchMsg, it looks at the isOn attribute:
-– If it is false, the broker shall immediately process every subsequent message it receives.
-– If it is true, the broker shall buffer all event messages it receives since that time, and process them in a batch as soon as it receives another BatchMsg with isOn set to false.
+- If it is false, the broker shall immediately process every subsequent message it receives.
+- If it is true, the broker shall buffer all event messages it receives since that time, and process them in a batch as soon as it receives another BatchMsg with isOn set to false.
 
 You may begin solving this exercise without this feature, then you add it later on.
 
