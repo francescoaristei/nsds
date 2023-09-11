@@ -4,9 +4,9 @@
 
 ## Group members
 
-- Francesco Aristei 10804304
-- Dario Mazzola 10650009
-- Giampiero Repole 10543357
+- Francesco Aristei
+- Dario Mazzola 
+- Giampiero Repole
 
 ## Problem to address
 
